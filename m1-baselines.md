@@ -1,4 +1,4 @@
-## TaskFlow baselines
+# TaskFlow baselines
 
 Build: Release, using Product > Profile (Command-I)
 
@@ -20,15 +20,14 @@ App state: fresh install, archive filled, then relaunched (branch module-1)
 
 ## Baselines
 
-- Launch to first frame: ____ s, median of 5 (range ____ to ____ s)
+- Launch to first frame: 8.75 s, median of 5 (range 8.38 to 11.34 s)
 
-- Build Search Index interval: ____ ms per build, median of 5 (range ____ to ____ ms), runs twice per launch
+- Build Search Index interval: 337 ms per build, median of 5 (range 329 to 340 ms), runs twice per launch
 
-- Memory after launch: ____ MB (Xcode gauge, Debug build)
+- Memory after launch: 198 MB (Xcode gauge, Debug build)
 
-- Memory after 10 tasks: ____ MB (Xcode gauge, Debug build)
+- Memory after 10 tasks: 233 MB (Xcode gauge, Debug build)
 
-- Idle CPU on Tasks: ____ % (Xcode gauge, Debug build)
+- Idle CPU on Tasks: 13 to 25 % (Xcode gauge, Debug build)
 
-- Activity loads on first visit: ____ (Loads counter)
-
+- Activity loads on first visit: 2 (Loads counter)
