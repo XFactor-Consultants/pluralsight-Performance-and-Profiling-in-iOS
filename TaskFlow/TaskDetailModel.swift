@@ -17,9 +17,9 @@ final class TaskDetailModel {
         self.activityLog = (0..<25_000).map { index in
             "Event \(index) recorded for task \(taskID.uuidString)"
         }
-        self.onTasksChanged = {
-            self.reload()
-        }
+        self.onTasksChanged = { [weak self] in
+            self?.reload()
+         }
     }
 
     func reload() {
