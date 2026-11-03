@@ -4,7 +4,6 @@ import Combine
 struct TaskListView: View {
     @Environment(TasksStore.self) private var tasksStore
     @State private var sortOrder: SortOrder = .dueDate
-    @State private var secondsSinceSync = 0
 
     enum SortOrder: String, CaseIterable, Identifiable {
         case dueDate = "Due Date"
@@ -47,20 +46,7 @@ struct TaskListView: View {
                 }
             }
             .navigationTitle("Tasks")
-            .safeAreaInset(edge: .bottom) {
-                HStack(spacing: 8) {
-                    Image(systemName: "arrow.triangle.2.circlepath")
-                        .symbolEffect(.pulse, options: .repeating)
-                    Text("Synced \(secondsSinceSync)s ago")
-                }
-                .font(.caption)
-                .padding(8)
-                .frame(maxWidth: .infinity)
-                .background(.bar)
-            }
-            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-                secondsSinceSync += 1
-            }
+            .safeAreaInset(edge: .bottom) { SyncBanner() }
             .navigationDestination(for: UUID.self) { id in
                 if let task = tasksStore.task(id: id) {
                     TaskDetailView(task: task)
@@ -93,6 +79,14 @@ struct TaskRowView: View {
                     .foregroundStyle(task.isComplete ? .green : .secondary)
             }
             .buttonStyle(.plain)
+            
+            if let assignee = task.assignee, let image = tasksStore.avatar(for: assignee) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 44, height: 44)
+                    .clipShape(Circle())
+            }
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(task.title)

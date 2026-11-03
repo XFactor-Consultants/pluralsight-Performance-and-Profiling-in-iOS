@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct RootView: View {
     @Environment(TasksStore.self) private var tasksStore
@@ -19,12 +20,19 @@ struct RootView: View {
                 SettingsView()
             }
         }
-        // Rebuilds the index every time the app becomes active, including at launch.
-        // This is the second "Build Search Index" before the first frame.
-        .onChange(of: scenePhase, initial: true) { _, newPhase in
+        .task {
+            tasksStore.warmAvatarCache()
+            tasksStore.cachedFeed = FeedCache.decodeCachedFeed()
+            await tasksStore.loadSearchIndex()
+        }
+        // Refreshes the index on return to the foreground; skipped if nothing changed.
+        .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                tasksStore.rebuildSearchIndex()
+                Task { await tasksStore.loadSearchIndex() }
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
+            tasksStore.avatarCache.removeAll()
         }
     }
 }

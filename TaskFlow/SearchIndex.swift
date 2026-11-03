@@ -1,7 +1,7 @@
 import Foundation
 import os
 
-struct SearchIndex {
+nonisolated struct SearchIndex {
     private(set) var postings: [String: [UUID]] = [:]
 
     init(tasks: [TaskItem]) {

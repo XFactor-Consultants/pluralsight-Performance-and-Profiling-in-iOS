@@ -10,7 +10,7 @@ final class TasksStore {
     let teammates: [Teammate]
 
     // Launch-time work. Ignored by Observation: the UI never reads these.
-    @ObservationIgnored var searchIndex: SearchIndex
+    @ObservationIgnored var searchIndex: SearchIndex?
     @ObservationIgnored var cachedFeed: [ActivityItem] = []
     @ObservationIgnored var avatarCache: [UUID: UIImage] = [:]
 
@@ -77,11 +77,6 @@ final class TasksStore {
         ]
         seeded.append(contentsOf: Self.makeTasks(count: Self.generatedTaskCount, teammates: [priya, marcus, dana]))
         tasks = seeded
-
-        // Launch work, all on the main thread, all before the first frame.
-        searchIndex = SearchIndex(tasks: seeded)
-        cachedFeed = FeedCache.decodeCachedFeed()
-        warmAvatarCache()
     }
 
     // MARK: - Seed data
@@ -111,9 +106,22 @@ final class TasksStore {
     }
 
     // MARK: - Launch-time work
-
-    func rebuildSearchIndex() {
-        searchIndex = SearchIndex(tasks: tasks)
+    
+    @ObservationIgnored private var indexedTasks: [TaskItem] = []
+    @ObservationIgnored private var isIndexing = false
+    
+    @MainActor func loadSearchIndex() async {
+        guard !isIndexing, tasks != indexedTasks else { return }
+        isIndexing = true
+        defer { isIndexing = false }
+        
+        let snapshot = tasks
+        let built = await Task.detached(priority: .userInitiated) {
+            SearchIndex(tasks: snapshot)
+        }.value
+        
+        searchIndex = built
+        indexedTasks = snapshot
     }
 
     func warmAvatarCache() {
@@ -122,13 +130,18 @@ final class TasksStore {
         defer { signposter.endInterval("Warm Avatar Cache", state) }
 
         for teammate in teammates {
-            let first = teammate.name.split(separator: " ").first.map(String.init) ?? ""
-            let fileName = "avatar-" + first.lowercased()
-            guard let url = Bundle.main.url(forResource: fileName, withExtension: "jpg"),
-                  let image = UIImage(contentsOfFile: url.path()) else { continue }
-            // Force the full decode now. This is what makes the images expensive.
-            avatarCache[teammate.id] = image.preparingForDisplay() ?? image
+        _ = avatar(for: teammate)
         }
+    }
+    
+    func avatar(for teammate: Teammate) -> UIImage? {
+        if let cached = avatarCache[teammate.id] { return cached }
+        let first = teammate.name.split(separator: " ").first.map(String.init) ?? ""
+        let fileName = "avatar-" + first.lowercased()
+        guard let url = Bundle.main.url(forResource: fileName, withExtension: "jpg"),
+              let image = ImageDownsampler.downsample(imageAt: url, to: CGSize(width: 44, height: 44), scale: UIScreen.main.scale) else { return nil }
+        avatarCache[teammate.id] = image
+        return image
     }
 
     // MARK: - Queries
