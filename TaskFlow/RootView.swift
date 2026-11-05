@@ -24,6 +24,7 @@ struct RootView: View {
             tasksStore.warmAvatarCache()
             tasksStore.cachedFeed = FeedCache.decodeCachedFeed()
             await tasksStore.loadSearchIndex()
+            SyncEngine.shared.startSyncLoop()
         }
         // Refreshes the index on return to the foreground; skipped if nothing changed.
         .onChange(of: scenePhase) { _, newPhase in

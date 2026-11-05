@@ -21,10 +21,11 @@ struct TaskListView: View {
     }
 
     var body: some View {
+        let counts = tasksStore.openCountsByAssignee
         NavigationStack {
             List(sortedTasks) { task in
                 NavigationLink(value: task.id) {
-                    TaskRowView(task: task, onToggle: {
+                    TaskRowView(task: task, openCount: task.assignee.flatMap { counts[$0.id] } ?? 0, onToggle: {
                         tasksStore.toggleComplete(task)
                     })
                 }
@@ -70,6 +71,7 @@ struct TaskListView: View {
 struct TaskRowView: View {
     @Environment(TasksStore.self) private var tasksStore
     let task: TaskItem
+    let openCount: Int
     let onToggle: () -> Void
 
     var body: some View {
@@ -103,7 +105,7 @@ struct TaskRowView: View {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(.quaternary, in: Capsule())
-                        Text("\(tasksStore.openTaskCount(for: assignee)) open")
+                        Text("(openCount) open")
                             .foregroundStyle(.secondary)
                     }
                 }
