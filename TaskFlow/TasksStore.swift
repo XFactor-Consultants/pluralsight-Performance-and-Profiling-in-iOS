@@ -145,11 +145,17 @@ final class TasksStore {
     }
 
     // MARK: - Queries
-
-    /// Used by every task row. Walks all tasks each time it is called.
-    func openTaskCount(for teammate: Teammate) -> Int {
-        tasks.filter { $0.assignee == teammate && !$0.isComplete }.count
+    
+    var openCountsByAssignee: [UUID: Int] {
+        var counts: [UUID: Int] = [:]
+        for task in tasks where !task.isComplete {
+            if let assignee = task.assignee {
+                counts[assignee.id, default: 0] += 1
+            }
+        }
+        return counts
     }
+
 
     // MARK: - Existing methods
 

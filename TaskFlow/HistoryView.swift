@@ -31,11 +31,17 @@ struct HistoryView: View {
         }
     }
 
-    // Fetches the entire archive, then filters it on the main thread.
     private func loadRows() {
-        let all = (try? context.fetch(FetchDescriptor<ArchivedTask>())) ?? []
-        rows = all
-            .filter { $0.assignee == selectedName }
-            .sorted { $0.completedAt > $1.completedAt }
+        let name = selectedName
+        var descriptor = FetchDescriptor<ArchivedTask>(
+            predicate: #Predicate { $0.assignee == name },
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        
+        descriptor.fetchLimit = 50
+        
+        descriptor.propertiesToFetch = [\.title, \.completedAt]
+        
+        rows = (try? context.fetch(descriptor)) ?? []
     }
 }
