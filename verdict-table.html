@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Verdicts</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --ink: #111827;
+    --muted: #5b6472;
+    --line: #e3e6eb;
+    --head: #111827;
+    --head-ink: #ffffff;
+    --good-bg: #dcf5e4;
+    --good-ink: #0f6b34;
+    --warn-bg: #fdecc8;
+    --warn-ink: #8a4b05;
+    --move-bg: #dbe8fd;
+    --move-ink: #1b4fb0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, "DejaVu Sans", sans-serif;
+    padding: 40px 80px 32px;
+    display: flex;
+    flex-direction: column;
+  }
+  header { margin-bottom: 22px; }
+  h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.5px; }
+  .sub { font-size: 24px; color: var(--muted); margin-top: 6px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06);
+  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  col.c1 { width: 21%; } col.c2 { width: 17%; } col.c3 { width: 22%; }
+  col.c4 { width: 17%; } col.c5 { width: 23%; }
+  thead th {
+    background: var(--head);
+    color: var(--head-ink);
+    text-align: left;
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 20px 24px;
+  }
+  tbody td {
+    padding: 0 24px;
+    height: 76px;
+    font-size: 26px;
+    line-height: 1.22;
+    border-top: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  tbody tr:first-child td { border-top: none; }
+  tbody tr:nth-child(even) td { background: #fafbfc; }
+  td.fix { font-weight: 700; }
+  td.fix small { display: block; font-weight: 400; font-size: 21px; color: var(--muted); margin-top: 2px; }
+  td.cond { color: var(--muted); font-size: 24px; }
+  td.base { color: var(--muted); }
+  td.after { font-weight: 600; }
+  .pill {
+    display: inline-block;
+    font-size: 24px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .good { background: var(--good-bg); color: var(--good-ink); }
+  .warn { background: var(--warn-bg); color: var(--warn-ink); }
+  .move { background: var(--move-bg); color: var(--move-ink); }
+  .note { display: block; font-size: 21px; color: var(--muted); margin-top: 5px; }
+  footer { margin-top: 14px; font-size: 21px; color: var(--muted); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Every fix against its own baseline</h1>
+    <div class="sub">Same conditions checked, one number, a neighbor check, and a verdict</div>
+  </header>
+
+  <div class="card">
+    <table>
+      <colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"></colgroup>
+      <thead>
+        <tr><th>Fix</th><th>Baseline</th><th>After</th><th>Same conditions?</th><th>Verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fix">Launch</td>
+          <td class="base">8.75 s, median of 5</td>
+          <td class="after">9.41 s, median of 3</td>
+          <td class="cond">Release, median of 5 vs 3</td>
+          <td><span class="pill warn">Goal not met</span><span class="note">inside baseline range</span></td>
+        </tr>
+        <tr>
+          <td class="fix">Idle CPU</td>
+          <td class="base">13 to 25 %</td>
+          <td class="after">3 to 5 %</td>
+          <td class="cond">Debug gauge only</td>
+          <td><span class="pill good">Improved</span></td>
+        </tr>
+        <tr>
+          <td class="fix">Memory after launch</td>
+          <td class="base">198 MB</td>
+          <td class="after">77.5 MB</td>
+          <td class="cond">Debug gauge only</td>
+          <td><span class="pill good">Improved</span></td>
+        </tr>
+        <tr>
+          <td class="fix">Memory after 10 tasks</td>
+          <td class="base">239 MB</td>
+          <td class="after">210 MB</td>
+          <td class="cond">Debug gauge only</td>
+          <td><span class="pill warn">Goal not met</span><span class="note">goal: within 5 MB of launch</span></td>
+        </tr>
+        <tr>
+          <td class="fix">Rendering</td>
+          <td class="base">267 ms</td>
+          <td class="after">190 ms</td>
+          <td class="cond">Yes</td>
+          <td><span class="pill good">Improved</span></td>
+        </tr>
+        <tr>
+          <td class="fix">Async first load</td>
+          <td class="base">1.21 s</td>
+          <td class="after">0.81 s</td>
+          <td class="cond">Yes</td>
+          <td><span class="pill good">Improved</span></td>
+        </tr>
+        <tr>
+          <td class="fix">Async revisit</td>
+          <td class="base">0.98 s</td>
+          <td class="after">about 2 ms</td>
+          <td class="cond">Cache warm by design</td>
+          <td><span class="pill good">Improved</span></td>
+        </tr>
+        <tr>
+          <td class="fix">History fetch<small>one switch</small></td>
+          <td class="base">1.31 s</td>
+          <td class="after">50 ms</td>
+          <td class="cond">Yes, one run</td>
+          <td><span class="pill good">Improved</span><span class="note">shows 50 rows</span></td>
+        </tr>
+        <tr>
+          <td class="fix">Simulated sync<small>one sync</small></td>
+          <td class="base">389 ms on the main thread</td>
+          <td class="after">none on the main thread; 225 ms on a worker</td>
+          <td class="cond">Yes, one run</td>
+          <td><span class="pill move">Moved off main thread</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <footer>Simulator results. Debug gauge rows are compared only with other Debug gauge readings.</footer>
+</body>
+</html>
